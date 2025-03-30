@@ -1,135 +1,66 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{array}
-
-\title{Project Proposal: Implementation of Bidirectional Dijkstra's Algorithm}
-\author{Team Members: Qurba Mushtaq 08232, Hiba Shahid 08036}
-\date{\today}
+\usepackage[a4paper, margin=0.75in]{geometry}
 
 \begin{document}
 
-\maketitle
+\noindent\textbf{Project Proposal: Bidirectional Dijkstra's Algorithm}\
+\textbf{Team:} Qurba Mushtaq (08232), Hiba Shahid (08036)\
+\textbf{Date:} \today
 
 \section*{Paper Details}
+\textbf{Title:} Bidirectional Dijkstra's Algorithm is Instance-Optimal\\
+\textbf{Authors:} Bernhard Haeupler et al.\\
+\textbf{Conference:} SOSA 2025\\
+\textbf{DOI:} \url{https://epubs.siam.org/doi/10.1137/1.9781611978315.16}
+
+\section*{Summary}
+This paper proves the \textbf{instance-optimality} of bidirectional Dijkstra's algorithm for shortest-path computations, showing that no correct algorithm outperforms it by more than a constant factor.
+
+\textbf{Key contributions:}
 \begin{itemize}
-    \item \textbf{Title:} Bidirectional Dijkstra's Algorithm is Instance-Optimal
-    \item \textbf{Authors:} Bernhard Haeupler, Richard Hladik, Vaclav Rozhon, Robert E. Tarjan, Jakub Tetek
-    \item \textbf{Conference:} Proceedings of SOSA (Symposium on Simplicity in Algorithms)
-    \item \textbf{Year:} 2025
-    \item \textbf{DOI/Link:} \url{https://epubs.siam.org/doi/10.1137/1.9781611978315.16}
+    \item Formal proof of instance-optimality.
+    \item Near-optimal guarantees for unweighted graphs.
+    \item Comparative analysis with A* search.
 \end{itemize}
 
-\section{Summary}
-This paper provides a theoretical foundation for the efficiency of \textbf{bidirectional Dijkstra's algorithm}, proving its \textbf{instance-optimality} for shortest-path computations in both weighted and unweighted graphs. The authors demonstrate that in the adjacency list query model, no correct algorithm can outperform their implementation by more than a constant factor on any input graph.
+\section*{Justification and Feasibility}
+\textbf{Relevance:} Establishes performance bounds for graph algorithms; applicable in routing systems.\\
+\textbf{Implementation:} Pseudocode provided, enabling direct translation into code.\\
+\textbf{Resources:} No reference implementation; datasets available (Kaggle, OpenStreetMap).
 
-Key contributions include:
-\begin{itemize}
-    \item Formal proof of instance-optimality in weighted graphs
-    \item Near-optimal guarantees for unweighted graphs (within factor $O(\Delta)$)
-    \item Comparative analysis with A* search
-\end{itemize}
-
-\section{Justification}
-\subsection{Theoretical Significance}
-\begin{itemize}
-    \item Establishes rigorous performance bounds for fundamental algorithmic technique
-    \item Bridges theory with practical applications in routing systems
-\end{itemize}
-
-\subsection{Pedagogical Value}
-\begin{itemize}
-    \item Reinforces core graph algorithm concepts
-    \item Explores advanced topics like instance optimality
-\end{itemize}
-
-\subsection{Implementation Potential}
-\begin{itemize}
-    \item Clear pseudocode (Algorithm 2) provided
-    \item Natural comparison points against standard algorithms
-\end{itemize}
-
-\section{Implementation Feasibility}
-\subsection{Algorithm Specification}
-\begin{itemize}
-    \item Complete pseudocode with:
-    \begin{itemize}
-        \item Bidirectional search mechanics
-        \item Termination conditions
-        \item Path reconstruction logic
-    \end{itemize}
-\end{itemize}
-
-\subsection{Implementation Complexity}
-\begin{itemize}
-    \item Standard graph structures (adjacency lists)
-    \item Basic components (priority queues, distance tracking)
-    \item No exotic dependencies (Python/Java/C++ compatible)
-\end{itemize}
-
-\subsection{Verification Methodology}
-\begin{itemize}
-    \item Comparison with standard Dijkstra
-    \item Path verification in real-world graphs
-    \item Stress testing with edge cases
-\end{itemize}
-
-\subsection{Resource Availability}
-\begin{itemize}
-    \item \textbf{Code:} Pseudocode available (no reference implementation)
-    \item \textbf{Data:} Real-world graphs (Kaggle) + generated graphs
-\end{itemize}
-
-\subsection{Risk Mitigation}
-\begin{center}
-\begin{tabular}{p{6cm}|p{6cm}}
+\section*{Implementation Plan}
+\textbf{Algorithm:} Implements bidirectional search with adjacency lists and priority queues.\\
+\textbf{Verification:} Compare with standard Dijkstra and A*; validate with real-world graphs.\\
+\textbf{Challenges and Mitigation:}
+\begin{tabular}{p{4.5cm}|p{4.5cm}}
 \toprule
-\textbf{Challenge} & \textbf{Mitigation Strategy} \\
+\textbf{Challenge} & \textbf{Mitigation} \\
 \midrule
-Termination condition complexity & Step-by-step validation \\
-Bidirectional synchronization & Thread-safe structures \\
-Large graph handling & Progressive testing \\
+Termination conditions & Step-by-step validation \\
+Bidirectional sync & Thread-safe structures \\
+Large graphs & Progressive testing \\
 \bottomrule
 \end{tabular}
-\end{center}
 
-\section{Team Responsibilities}
-\begin{center}
-\begin{tabular}{p{0.48\textwidth}|p{0.48\textwidth}}
-\toprule
-\textbf{Qurba Mushtaq} & \textbf{Hiba Shahid} \\
-\midrule
-Core algorithm implementation & Graph generation and dataset curation \\
-Performance benchmarking & Results analysis and visualization \\
-Paper analysis & Report writing \\
-\bottomrule
-\end{tabular}
-\end{center}
+\section*{Team Responsibilities}
+\textbf{Qurba Mushtaq:} Algorithm implementation, benchmarking, paper analysis.\\
+\textbf{Hiba Shahid:} Graph generation, result analysis, report writing.
 
-\section{GitHub Repository}
-\begin{itemize}
-    \item \textbf{URL:} \url{https://github.com/HibaShahidA/Bidirectional-Dijkstra}
-    \item \textbf{Structure:}
-    \begin{itemize}
-        \item \texttt{/src} - Implementation code
-        \item \texttt{/data} - Graph datasets
-        \item \texttt{/benchmarks} - Performance scripts
-        \item \texttt{/docs} - Technical notes
-    \end{itemize}
-\end{itemize}
+\section*{GitHub Repository}
+\textbf{URL:} \url{https://github.com/HibaShahidA/Bidirectional-Dijkstra}\\
+\textbf{Structure:} \texttt{/src} (code), \texttt{/data} (datasets), \texttt{/benchmarks} (performance scripts), \texttt{/docs} (notes).
 
-\section{Next Steps}
+\section*{Next Steps}
 \begin{enumerate}
-    \item Implement Algorithm 2 with termination conditions
-    \item Develop graph generators
-    \item Design comparison experiments:
-    \begin{itemize}
-        \item Unidirectional Dijkstra
-        \item A* search
-    \end{itemize}
-    \item Analyze results
+    \item Implement Algorithm 2.
+    \item Develop graph generators.
+    \item Compare with Dijkstra and A*.
+    \item Analyze and document results.
 \end{enumerate}
 
 \end{document}
