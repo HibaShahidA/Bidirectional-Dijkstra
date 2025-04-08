@@ -1,1 +1,10 @@
 All notes and further research done will be recorded here
+
+## APPROACH 
+Starts from s and t simulatenously, exchanges one at a time
+Maintains priority queues, visited sets, distance maps
+example: 
+Let shortest path be such that: s->a->b->e->r->t
+Q_f = [s]
+Q_b = [t]
+all distances infinite except s and t which are 0
