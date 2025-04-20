@@ -1,13 +1,27 @@
 # Bidirectional-Dijkstra
+
+## Overview
 Applying a bidirectional Dijkstra algorithm to prove that it is instance-optimal. This is done under the use of the research paper titles: "Bidirectional Dijkstra's Algorithm is Instance-Optimal", by authors: Bernhard Haeupler, RIchard Hladik, Vaclav Rozhon, Robert E. Tarjan, akub Tetek.
 
-# Algorithmic details
+## Algorithmic details
 The algorithm runs like the standard Dijkstra, except in the _bidirectional search_, the search starts from both the endpoints - the source vertex _s_ and the target vertex _t_. This approach can be imagined as two people walking towards one another, taking the optimal steps and meeting in the middle. Not only did both the people take the shortest routes to the middle, but they also did not need to cross all the way to the other side. Similarly, in the bidirectional search, not all nodes need to be traversed, hence reducing the nodes that need to be searched.
 
-# Dataset
-Since _bidirectional search_ shows promising results in huge graphs, it is only fair to run the algorithm against the standard Dijkstra on equally large datasets. Therefore, we have decided to use two approaches for the final testing:
-- _synthetic_ datasets of varying sizes to test the optimal time on expected output
-- _code generated_ datasets of varying sizes and types
+## Key Features
+- **Instance-optimality**: The algorithm is designed to achieve optimal performance based on the specific instance of the graph.
+- **Bidirectional search**: Improves efficiency by reducing the number of nodes traversed.
+- **Scalability**: Particularly efficient for large graphs with many vertices and edges.
+
+## Dataset
+Since **bidirectional search** is particularly useful for large graphs, we test the algorithm against the standard Dijkstra algorithm on equally large datasets to compare performance.
+
+For final testing, we used two different approaches:
+1. **Synthetic datasets** of varying sizes to test the algorithm's performance against expected outputs.
+2. **Code-generated datasets** of varying sizes and types to test its adaptability and efficiency across different graph structures.
+
+## Results
+The results of the performance comparison between the Bidirectional Dijkstra algorithm and standard Dijkstra are provided in the `benchmarks` directory. The performance is evaluated based on factors like:
+- **Edge traversal count** (comparison_edges_trend.png)
+- **Execution time** (comparison_times_trend.png)
 
 ## Directory Breakdown
 
