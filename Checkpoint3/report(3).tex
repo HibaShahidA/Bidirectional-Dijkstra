@@ -1,0 +1,164 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Algorithms: Design and Analysis \\ Checkpoint 3}
+\author{
+  Team 53 \\
+  Qurba Mushtaq 08232, Hiba Shahid 08036
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\noindent\textbf{Reviewed research paper title:} \\
+\textit{Bidirectional Dijkstra's Algorithm is Instance-Optimal} \\
+by Bernhad Haeupler, Richard Hladik, Vaclav Rozhon, Robert E. Tarjan
+
+\section{Introduction}
+Bidirectional Dijkstra's algorithm is shown to be instance-optimal for finding the shortest path between two nodes in a graph. This optimality is proven for weighted multigraphs, both directed and undirected, with the guarantee measured in terms of the number of edges explored. It is important to note that this result holds only for graphs with strictly positive weights. If zero or negative weights are allowed, the assumptions required for instance-optimality break down. This report explores how bidirectional Dijkstra compares to other shortest path algorithms and under what theoretical and practical conditions it achieves optimality.
+
+\section{Aim of the Study}
+The paper establishes that no correct algorithm can outperform the proposed version of bidirectional Dijkstra on any single instance by more than a constant factor. This result is particularly significant in the adjacency list model, where access to the graph is limited to querying nodes and their neighbors. The optimality guarantee extends even to unweighted graphs, where the algorithm remains instance-optimal up to a factor of $O(\Delta)$, where $\Delta$ denotes the maximum degree of the graph. Theorem 1.1 in the paper formalizes this result.
+
+\section{Algorithm Overview and Motivation}
+While many algorithms can compute shortest paths, few are instance-optimal. In large graphs, exploring all paths is inefficient. Bidirectional Dijkstra improves this by exploring simultaneously from both the source and target and stopping early when the shortest path has been identified. Earlier variants of this idea did not guarantee optimality, often halting too early or traversing more than necessary. This paper introduces a variant with proven optimal stopping and exploration rules.
+
+% \section{Unidirectional Dijkstra: Optimality in a Restricted Setting}
+% The paper also presents a result for unidirectional Dijkstra, proving it is instance-optimal when the algorithm can only access a node’s out-neighbors. This restriction limits how cleverly the algorithm can behave, and thus Dijkstra performs as well as any other algorithm. This holds even if randomization is allowed.
+
+% \section{The Bidirectional Algorithm}
+% \textbf{Selection rule:} The algorithm runs two Dijkstra searches:
+% \begin{enumerate}
+%     \item One from the source ($s$)
+%     \item One from the target ($t$)
+% \end{enumerate}
+% These alternate at each step, relaxing one edge at a time.
+
+% \vspace{5mm}
+% \noindent\textbf{Stopping condition:} The algorithm tracks the best path length $\mu$. It stops when:
+% \[\hat{d}(s,u_s) + \hat{d}(u_t, t) > \mu\]
+% This means that any new path would be longer than the one already found, so no further exploration is needed.
+
+% \section{Comparison with Other Algorithms}
+% \subsection*{Standard Dijkstra's algorithm}
+% Standard Dijkstra's algorithm, while optimal in worst-case time complexity, does not achieve instance-optimality in this model because it may explore far more of the graph than necessary. 
+
+% \subsection*{A* algorithm}
+% The A* algorithm, although often faster in practice, relies on heuristic estimates of distances. The paper points out that A* solves a fundamentally different problem: it assumes additional advice about the graph structure. Therefore, while A* may outperform bidirectional Dijkstra in specific cases, it is not instance-optimal in the advice-free model considered here.
+
+% \section{Proof of Correctness}
+% The algorithm constructs the shortest path by merging forward and backward searches. Once both searches meet, the algorithm checks whether the combined distance is shorter than previously known paths. If a better path is found, it updates the shortest known value. The process ends once no unexplored path can improve the result.
+
+% \section{Proof of Instance Optimality}
+% % To prove no other algorithm can do significantly better, the authors construct a graph where skipping just one edge can result in failure. They create a second version of the graph with a new, shorter path that uses the missed edge. Since the algorithm did not check that edge, it must return the wrong path in at least one version. Hence, no algorithm can consistently do better without risking correctness.
+% To show instance optimality, the authors consider any other correct algorithm $A$ and show that if $A$ explores significantly fewer edges than the proposed algorithm, then $A$ must fail on some graph. They construct a graph $G$ where $A$ omits an edge that turns out to be crucial for finding the shortest path. Then, they modify $G$ slightly into $G'$, introducing a shorter path via that omitted edge. Since $A$ behaves identically on $G$ and $G'$—never querying the critical edge—it must return the same output, which is incorrect on at least one of the graphs. This contradiction proves that no correct algorithm can explore significantly fewer edges than the proposed bidirectional Dijkstra.
+
+\section{Algorithm Design, Correctness, and Optimality}
+
+\subsection{Unidirectional vs. Bidirectional Dijkstra}
+The paper proves that unidirectional Dijkstra is instance-optimal under a restricted setting where only out-neighbor access is allowed. In such a model, even randomized algorithms cannot outperform it.
+
+The proposed bidirectional algorithm runs two Dijkstra searches—one from the source ($s$) and one from the target ($t$)—alternating between them. At each step, it relaxes one edge from the active frontier. The search stops when:
+\[
+\hat{d}(s,u_s) + \hat{d}(u_t, t) > \mu
+\]
+where \( \mu \) is the shortest path length found so far. This ensures no better path remains undiscovered. This is explained in further detail in our implementation in section \ref{sec:algo}.
+
+\subsection{Correctness and Comparison}
+Once the forward and backward searches meet at a common vertex or edge, the path is built by merging the two. If any shorter path existed, it would have been found before the stopping condition was satisfied. This guarantees correctness.
+
+While Dijkstra explores more edges than necessary and A* requires extra heuristic information, the bidirectional version in this paper achieves strong performance without such assumptions. Even in large graphs, it explores fewer edges and runs faster in practice.
+
+\subsection{Instance Optimality}
+To prove that no correct algorithm can consistently outperform it, the authors construct two graph versions \( G \) and \( G' \). An algorithm that skips a critical edge in \( G \) will return an incorrect result in \( G' \), where that edge is essential. This contradiction shows that the bidirectional algorithm explores the fewest possible edges without compromising correctness.
+
+\section{Remarks and Theoretical Limits}
+The algorithm is only instance-optimal when edge weights are \textbf{strictly positive}. If weights are zero or negative, alternative algorithms can outperform it. The paper also proves that even in unweighted graphs, no algorithm can do better than a factor of $O(\Delta)$, where $\Delta$ is the maximum degree of the provided graph.
+
+\section{Implementation Summary}
+We implemented Bidirectional Dijkstra’s algorithm in Python using adjacency lists. The algorithm maintains two priority queues: one for forward search from the source, and one for backward search from the target. These searches alternate at each step, exploring one edge at a time. The stopping condition ensures that the shortest path has been found when no better path can exist. 
+
+The full implementation includes custom graph construction, forward and reverse edge tracking, edge relaxation, and detailed logging of traversal metrics. We also implemented baseline algorithms: unidirectional Dijkstra and NetworkX's built-in method for performance comparison.
+
+\section{How It Works}
+\label{sec:algo}
+The bidirectional Dijkstra algorithm works by running two simultaneous searches—one from the source node \( s \) and one from the target node \( t \). Each search maintains its own set of distances and predecessors.
+
+\begin{itemize}
+    \item \textbf{Forward Search:} Begins at node \( s \), using a priority queue to explore vertices. It updates shortest distances (\texttt{d\_forward}) and predecessors (\texttt{pred\_forward}) as it goes.
+    
+    \item \textbf{Backward Search:} Begins at node \( t \), exploring the graph in reverse (i.e., following incoming edges in directed graphs). It updates \texttt{d\_backward} and \texttt{pred\_backward}.
+
+    \item \textbf{Meeting Point:} The forward and backward searches eventually meet at a common vertex or edge. This meeting point is used to construct a complete path from \( s \) to \( t \).
+
+    \item \textbf{Stopping Condition:} The algorithm stops when the combined current distances from both searches exceed the best known path length (\( \mu \)). This ensures that continuing would not find a better path.
+
+    \item \textbf{Path Construction:} Once the searches meet, the path is built by combining the forward path to the meeting point with the backward path from that point to \( t \). The final result is the shortest path from \( s \) to \( t \).
+\end{itemize}
+
+\section{Correctness Testing}
+To ensure the implementation was correct, we tested it on graphs of varying sizes and edge densities. Sample test cases included:
+\begin{itemize}
+    \item Small graphs where shortest paths could be calculated manually.
+    \item Graphs with multiple shortest paths of the same length.
+    \item Disconnected graphs to ensure no invalid paths were returned.
+\end{itemize}
+
+In each case, the paths and distances returned matched those from standard Dijkstra and NetworkX’s implementation.
+
+\section{Challenges and Enhancements}
+The main challenge was implementing the correct stopping condition. In early tests, the algorithm stopped too early or too late, depending on how we computed the current best path length $\mu$. We fixed this by tracking the shortest overlapping path during exploration and applying the correct check condition.
+
+We enhanced our code to collect the number of edge relaxations and average execution time for each algorithm over multiple iterations. This allowed us to generate meaningful visual comparisons and see how performance scaled with graph size. We also generated synthetic graphs of different types using a helper function and NetworkX’s random graph generators.
+
+\section{Empirical Verification}
+To prove that the proposed algorithm is, in fact, instance-optimal, we evaluated its performance on varying graphs and compared it against classical Dijkstra and A*. We focused on two metrics: \textbf{execution time} and \textbf{number of edges traversed}. \\[1ex]
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{comparison_times.png}
+    \caption{Comparison of Execution Time across Algorithms}
+    \label{fig:exec-time}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{comparison_edges.png}
+    \caption{Comparison of Edges Traversed across Algorithms}
+    \label{fig:edges-traversed}
+\end{figure}
+
+\break
+From the figures \ref{fig:exec-time} and \ref{fig:edges-traversed}, it is evident that the bidirectional Dijkstra algorithm outperforms traditional Dijkstra and A* in the no-heuristic setting. This difference becomes especially clear in larger graphs. The number of edges it explores is much lower, and this leads to shorter execution times as well. This supports the paper’s claim that bidirectional Dijkstra is instance-optimal.
+
+\section{Complexity Analysis}
+The time and space complexity of Bidirectional Dijkstra’s algorithm depends on the number of vertices \( V \) and edges \( E \) in the graph.
+
+In the worst case, the algorithm behaves similarly to standard Dijkstra's algorithm:
+\begin{itemize}
+    \item Time complexity: \( O((V + E) \log V) \), assuming a binary heap is used for the priority queue.
+    \item Space complexity: \( O(V + E) \), due to storing distances, predecessors, and the graph structure.
+\end{itemize}
+
+However, in practice, the bidirectional approach explores far fewer nodes and edges, especially in large graphs. Since the searches start from both ends, the area explored is roughly half in each direction. This leads to a practical improvement in performance, though the theoretical worst-case remains similar. This is evident in the trends we monitored in figures \ref{fig:exec-time} and \ref{fig:edges-traversed}.
+
+In graphs with small diameters or dense connections, the benefits of bidirectional search are even more noticeable. Our empirical results confirm that the average number of edge relaxations and execution time are significantly lower than unidirectional Dijkstra.
+
+\section{Datasets and Testing Material}
+We tested the algorithm on both manually constructed graphs and synthetic data. The larger test cases were generated using our own functions and \textbf{NetworkX}’s random graph tools. Each algorithm was run multiple times on the same inputs, and average times and edge counts were recorded.
+
+\section{Future Work and Reflections}
+It would be interesting to see if these instance-optimality ideas can be extended to A* or other heuristic-based algorithms. Another idea is testing the algorithm on real-world graphs like road networks or social graphs to see if the observed gains carry over. We are also curious about how the results would differ on undirected graphs or graphs with zero-weight edges.
+
+\section{GitHub repository}
+\textbf{URL:} \url{https://github.com/HibaShahidA/Bidirectional-Dijkstra}
+
+\end{document}
+
