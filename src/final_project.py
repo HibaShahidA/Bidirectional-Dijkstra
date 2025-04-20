@@ -5,6 +5,8 @@ import math
 import time
 import networkx as nx
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 #creating the graph
@@ -242,7 +244,7 @@ def run_performance_test(graph, source, target, iterations=100, name="Graph"):
     avg_bidi_time = total_bidi_time / iterations * 1000 
     avg_bidi_edges = total_bidi_edges / iterations
     print(f"Bidirectional Dijkstra: Length={bidi_length}")
-    print(f"  Avg Time: {avg_bidi_time:.3f} ms, Avg Edges: {avg_bidi_edges:.1f}")
+    print(f"  Avg Time: {avg_bidi_time:.2f} ms, Avg Edges: {avg_bidi_edges:.1f}")
 
     #for unidirectional 
     total_dijk_time = 0
@@ -260,7 +262,7 @@ def run_performance_test(graph, source, target, iterations=100, name="Graph"):
     avg_dijk_time = total_dijk_time / iterations * 1000  # ms
     avg_dijk_edges = total_dijk_edges / iterations
     print(f"Unidirectional Dijkstra: Length={dijk_length}")
-    print(f"  Avg Time: {avg_dijk_time:.3f} ms, Avg Edges: {avg_dijk_edges:.1f}")
+    print(f"  Avg Time: {avg_dijk_time:.2f} ms, Avg Edges: {avg_dijk_edges:.1f}")
 
 def test_algorithms():
     #Small graph
@@ -290,5 +292,439 @@ def test_algorithms():
     print("\nVery Large Directed Graph (100,000 vertices, 500,000 edges):")
     run_performance_test(g_very_large, 0, 99999, iterations=10, name="Very Large Directed")
 
+
+
+def plot_comparison_trend(results):
+    # Extract graph names and edge counts
+    graph_names = [res['name'] for res in results]
+    uni_edges = [res['uni_edges'] for res in results]
+    bidi_edges = [res['bidi_edges'] for res in results]
+    
+    # Set up trend line graph
+    x = np.arange(len(graph_names))  # Positions for points
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, uni_edges, marker='o', linestyle='-', color='skyblue', label='Unidirectional')
+    plt.plot(x, bidi_edges, marker='s', linestyle='--', color='lightcoral', label='Bidirectional')
+    
+    # Customize graph
+    plt.xlabel('Graph Type')
+    plt.ylabel('Average Edges Checked')
+    plt.title('Trend of Edges Checked: Unidirectional vs. Bidirectional Dijkstra’s')
+    plt.xticks(x, graph_names, rotation=0)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Add value labels near points
+    for i, v in enumerate(uni_edges):
+        plt.text(i, v + 0.57, f'{v:.1f}', ha='center', va='bottom')
+    for i, v in enumerate(bidi_edges):
+        plt.text(i, v - 0.5, f'{v:.1f}', ha='center', va='top')
+    
+    plt.tight_layout()
+    plt.savefig('comparison_edges_trend.png')
+    plt.close()
+
+# Modified run_performance_test to collect results (integrates with your code)
+def run_performance_test(graph, source, target, iterations=100, name="Graph"):
+    print(f"\n{name} (from {source} to {target}):")
+    
+    nx_path, nx_length, _ = networkx_dijkstra(graph, source, target)
+    print(f"NetworkX: Length={nx_length}")
+
+    total_bidi_time = 0
+    total_bidi_edges = 0
+    bidi_path = None
+    bidi_length = None
+    for i in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = bidirectional_dijkstra(graph, source, target)
+        total_bidi_time += time.perf_counter() - start_time
+        total_bidi_edges += edges
+        if bidi_path is None:
+            bidi_path, bidi_length = path, length
+    avg_bidi_time = total_bidi_time / iterations * 1000
+    avg_bidi_edges = total_bidi_edges / iterations
+    print(f"Bidirectional Dijkstra: Length={bidi_length}")
+    print(f"  Avg Time: {avg_bidi_time:.2f} ms, Avg Edges: {avg_bidi_edges:.1f}")
+
+    total_dijk_time = 0
+    total_dijk_edges = 0
+    dijk_path = None
+    dijk_length = None
+    for _ in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = dijkstra(graph, source, target)
+        total_dijk_time += time.perf_counter() - start_time
+        total_dijk_edges += edges
+        if dijk_path is None:
+            dijk_path, dijk_length = path, length
+    avg_dijk_time = total_dijk_time / iterations * 1000
+    avg_dijk_edges = total_dijk_edges / iterations
+    print(f"Unidirectional Dijkstra: Length={dijk_length}")
+    print(f"  Avg Time: {avg_dijk_time:.2f} ms, Avg Edges: {avg_dijk_edges:.1f}")
+    
+    # Return results for plotting
+    return {
+        'name': name,
+        'uni_edges': avg_dijk_edges,
+        'bidi_edges': avg_bidi_edges
+    }
+
+def test_algorithms_with_plot():
+    results = []
+    
+    # Small graph
+    g_small = Graph(directed=True)
+    g_small.add_edge(1, 2, 4)
+    g_small.add_edge(1, 3, 2)
+    g_small.add_edge(2, 4, 3)
+    g_small.add_edge(3, 2, 1)
+    g_small.add_edge(3, 4, 5)
+    g_small.add_edge(4, 5, 2)
+    g_small.add_edge(2, 5, 10)
+    results.append(run_performance_test(g_small, 1, 5, iterations=100, name="Small Directed"))
+
+    # Medium graph
+    g_medium = generate_random_graph(n=10000, m=50000, directed=True)
+    results.append(run_performance_test(g_medium, 0, 9999, iterations=10, name="Medium Directed"))
+
+    # Large graph
+    g_large = generate_random_graph(n=50000, m=250000, directed=True)
+    results.append(run_performance_test(g_large, 0, 49999, iterations=10, name="Large Directed"))
+
+    # Very large graph
+    g_very_large = generate_random_graph(n=100000, m=500000, directed=True)
+    results.append(run_performance_test(g_very_large, 0, 99999, iterations=10, name="Very Large Directed"))
+
+    # Plot the trend line graph
+    plot_comparison_trend(results)
+
+
+
+
+def plot_comparison_time_trend(results):
+    # Extract graph names and time values
+    graph_names = [res['name'] for res in results]
+    uni_times = [res['uni_time'] for res in results]
+    bidi_times = [res['bidi_time'] for res in results]
+    
+    # Set up trend line graph
+    x = np.arange(len(graph_names))  # Positions for points
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, uni_times, marker='o', linestyle='-', color='skyblue', label='Unidirectional')
+    plt.plot(x, bidi_times, marker='s', linestyle='--', color='lightcoral', label='Bidirectional')
+    
+    # Customize graph
+    plt.xlabel('Graph Type')
+    plt.ylabel('Average Execution Time (ms)')
+    plt.title('Trend of Execution Times: Unidirectional vs. Bidirectional Dijkstra’s')
+    plt.xticks(x, graph_names, rotation=0)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Add value labels near points
+    for i, v in enumerate(uni_times):
+        plt.text(i, v + 0.05 * v, f'{v:.2f}', ha='center', va='bottom')
+    for i, v in enumerate(bidi_times):
+        plt.text(i, v - 0.05 * v, f'{v:.2f}', ha='center', va='top')
+    
+    plt.tight_layout()
+    plt.savefig('comparison_times_trend_time.png')
+    plt.close()
+
+# Modified run_performance_test to collect results (integrates with your code)
+def run_performance_test_time(graph, source, target, iterations=100, name="Graph"):
+    print(f"\n{name} (from {source} to {target}):")
+    
+    nx_path, nx_length, _ = networkx_dijkstra(graph, source, target)
+    print(f"NetworkX: Length={nx_length}")
+
+    total_bidi_time = 0
+    total_bidi_edges = 0
+    bidi_path = None
+    bidi_length = None
+    for i in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = bidirectional_dijkstra(graph, source, target)
+        total_bidi_time += time.perf_counter() - start_time
+        total_bidi_edges += edges
+        if bidi_path is None:
+            bidi_path, bidi_length = path, length
+    avg_bidi_time = total_bidi_time / iterations * 1000
+    avg_bidi_edges = total_bidi_edges / iterations
+    print(f"Bidirectional Dijkstra: Length={bidi_length}")
+    print(f"  Avg Time: {avg_bidi_time:.2f} ms, Avg Edges: {avg_bidi_edges:.1f}")
+
+    total_dijk_time = 0
+    total_dijk_edges = 0
+    dijk_path = None
+    dijk_length = None
+    for _ in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = dijkstra(graph, source, target)
+        total_dijk_time += time.perf_counter() - start_time
+        total_dijk_edges += edges
+        if dijk_path is None:
+            dijk_path, dijk_length = path, length
+    avg_dijk_time = total_dijk_time / iterations * 1000
+    avg_dijk_edges = total_dijk_edges / iterations
+    print(f"Unidirectional Dijkstra: Length={dijk_length}")
+    print(f"  Avg Time: {avg_dijk_time:.2f} ms, Avg Edges: {avg_dijk_edges:.1f}")
+    
+    # Return results for plotting
+    return {
+        'name': name,
+        'uni_time': avg_dijk_time,
+        'bidi_time': avg_bidi_time,
+        'uni_edges': avg_dijk_edges,
+        'bidi_edges': avg_bidi_edges
+    }
+
+def test_algorithms_with_plot_time():
+    results = []
+    
+    # Small graph
+    g_small = Graph(directed=True)
+    g_small.add_edge(1, 2, 4)
+    g_small.add_edge(1, 3, 2)
+    g_small.add_edge(2, 4, 3)
+    g_small.add_edge(3, 2, 1)
+    g_small.add_edge(3, 4, 5)
+    g_small.add_edge(4, 5, 2)
+    g_small.add_edge(2, 5, 10)
+    results.append(run_performance_test_time(g_small, 1, 5, iterations=100, name="Small Directed"))
+
+    # Medium graph
+    g_medium = generate_random_graph(n=10000, m=50000, directed=True)
+    results.append(run_performance_test_time(g_medium, 0, 9999, iterations=10, name="Medium Directed"))
+
+    # Large graph
+    g_large = generate_random_graph(n=50000, m=250000, directed=True)
+    results.append(run_performance_test_time(g_large, 0, 49999, iterations=10, name="Large Directed"))
+
+    # Very large graph
+    g_very_large = generate_random_graph(n=100000, m=500000, directed=True)
+    results.append(run_performance_test_time(g_very_large, 0, 99999, iterations=10, name="Very Large Directed"))
+
+    # Plot the trend line graph
+    plot_comparison_time_trend(results)
+
+# if __name__ == "__main__":
+#     test_algorithms_with_plot()
+#     test_algorithms_with_plot_time()
+
+
+def astar(graph, source, target):
+    # Handle invalid inputs
+    if source not in graph.vertices or target not in graph.vertices:
+        return [], math.inf, 0
+    if source == target:
+        return [source], 0, 0
+    
+    # Initialize data structures
+    edge_count = 0
+    g = {v: math.inf for v in graph.vertices}  # Cost from source to v
+    g[source] = 0
+    f = {v: math.inf for v in graph.vertices}  # Estimated total cost: f(v) = g(v) + h(v)
+    f[source] = 0  # Heuristic h(source) = 0
+    pred = {source: None}
+    pq = [(0, source)]  # Priority queue: (f(v), v)
+    visited = set()
+    
+    # Simple heuristic: h(v) = 0 (Dijkstra-like, admissible)
+    def heuristic(v):
+        return 0
+    
+    while pq:
+        f_score, u = heapq.heappop(pq)
+        if u in visited:
+            continue
+        visited.add(u)
+        if u == target:
+            break
+        
+        for v, weight in graph.get_neighbors(u):
+            edge_count += 1
+            if v not in visited:
+                new_g = g[u] + weight
+                if new_g < g[v]:
+                    g[v] = new_g
+                    f[v] = g[v] + heuristic(v)
+                    pred[v] = u
+                    heapq.heappush(pq, (f[v], v))
+    
+    if g[target] == math.inf:
+        return [], math.inf, edge_count
+    
+    # Construct path
+    path = []
+    curr = target
+    while curr is not None:
+        path.append(curr)
+        curr = pred[curr]
+    return path[::-1], g[target], edge_count
+def run_performance_test(graph, source, target, iterations=100, name="Graph"):
+    print(f"\n{name} (from {source} to {target}):")
+    
+    nx_path, nx_length, _ = networkx_dijkstra(graph, source, target)
+    print(f"NetworkX: Length={nx_length}")
+
+    # Bidirectional
+    total_bidi_time = 0
+    total_bidi_edges = 0
+    bidi_path = None
+    bidi_length = None
+    for i in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = bidirectional_dijkstra(graph, source, target)
+        total_bidi_time += time.perf_counter() - start_time
+        total_bidi_edges += edges
+        if bidi_path is None:
+            bidi_path, bidi_length = path, length
+    avg_bidi_time = total_bidi_time / iterations * 1000
+    avg_bidi_edges = total_bidi_edges / iterations
+    print(f"Bidirectional Dijkstra: Length={bidi_length}, Path={bidi_path}")
+    print(f"  Avg Time: {avg_bidi_time:.2f} ms")
+
+    # Unidirectional
+    total_dijk_time = 0
+    total_dijk_edges = 0
+    dijk_path = None
+    dijk_length = None
+    for _ in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = dijkstra(graph, source, target)
+        total_dijk_time += time.perf_counter() - start_time
+        total_dijk_edges += edges
+        if dijk_path is None:
+            dijk_path, dijk_length = path, length
+    avg_dijk_time = total_dijk_time / iterations * 1000
+    avg_dijk_edges = total_dijk_edges / iterations
+    print(f"Unidirectional Dijkstra: Length={dijk_length}, Path={dijk_path}")
+    print(f"  Avg Time: {avg_dijk_time:.2f} ms")
+
+    # A*
+    total_astar_time = 0
+    total_astar_edges = 0
+    astar_path = None
+    astar_length = None
+    for _ in range(iterations):
+        start_time = time.perf_counter()
+        path, length, edges = astar(graph, source, target)
+        total_astar_time += time.perf_counter() - start_time
+        total_astar_edges += edges
+        if astar_path is None:
+            astar_path, astar_length = path, length
+    avg_astar_time = total_astar_time / iterations * 1000
+    avg_astar_edges = total_astar_edges / iterations
+    print(f"A*: Length={astar_length}, Path={astar_path}")
+    print(f"  Avg Time: {avg_astar_time:.2f} ms")
+
+    return {
+        'name': name,
+        'uni_time': avg_dijk_time,
+        'bidi_time': avg_bidi_time,
+        'astar_time': avg_astar_time,
+        'uni_edges': avg_dijk_edges,
+        'bidi_edges': avg_bidi_edges,
+        'astar_edges': avg_astar_edges
+    }
+
+# Modified time-based trend line graph (fix overlapping labels)
+def plot_comparison_time_trend(results):
+    graph_names = [res['name'] for res in results]
+    uni_times = [res['uni_time'] for res in results]
+    bidi_times = [res['bidi_time'] for res in results]
+    astar_times = [res['astar_time'] for res in results]
+    
+    x = np.arange(len(graph_names))
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, uni_times, marker='o', linestyle='-', color='skyblue', label='Unidirectional')
+    plt.plot(x, bidi_times, marker='s', linestyle='--', color='lightcoral', label='Bidirectional')
+    plt.plot(x, astar_times, marker='^', linestyle=':', color='limegreen', label='A*')
+    
+    plt.xlabel('Graph Type')
+    plt.ylabel('Average Execution Time (ms)')
+    plt.title('Trend of Execution Times: Unidirectional vs. Bidirectional vs. A*')
+    plt.xticks(x, graph_names, rotation=0)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Staggered labels to avoid overlap
+    max_time = max(max(uni_times), max(bidi_times), max(astar_times))
+    offset = 0.1 * max_time  # Increased offset for clarity
+    for i, v in enumerate(uni_times):
+        plt.text(i, v + 0.5*offset, f'{v:.2f}', ha='center', va='bottom', rotation=0, fontsize=8)
+    for i, v in enumerate(bidi_times):
+        plt.text(i, v - 0.5*offset, f'{v:.2f}', ha='center', va='top', rotation=0, fontsize=8)
+    for i, v in enumerate(astar_times):
+        plt.text(i, v, f'{v:.2f}', ha='center', va='center', rotation=0, fontsize=8)
+    
+    plt.tight_layout()
+    plt.savefig('comparison_times_trend_with_astar.png')
+    plt.close()
+
+# New edge-based trend line graph
+def plot_comparison_edge_trend(results):
+    graph_names = [res['name'] for res in results]
+    uni_edges = [res['uni_edges'] for res in results]
+    bidi_edges = [res['bidi_edges'] for res in results]
+    astar_edges = [res['astar_edges'] for res in results]
+    
+    x = np.arange(len(graph_names))
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, uni_edges, marker='o', linestyle='-', color='skyblue', label='Unidirectional')
+    plt.plot(x, bidi_edges, marker='s', linestyle='--', color='lightcoral', label='Bidirectional')
+    plt.plot(x, astar_edges, marker='^', linestyle=':', color='limegreen', label='A*')
+    
+    plt.xlabel('Graph Type')
+    plt.ylabel('Average Edges Visited')
+    plt.title('Trend of Edges Visited: Unidirectional vs. Bidirectional vs. A*')
+    plt.xticks(x, graph_names, rotation=0)
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Staggered labels to avoid overlap
+    max_edges = max(max(uni_edges), max(bidi_edges), max(astar_edges))
+    offset = 0.1 * max_edges
+    for i, v in enumerate(uni_edges):
+        plt.text(i, v + 0.5*offset, f'{v:.1f}', ha='center', va='bottom', rotation=0, fontsize=8)
+    for i, v in enumerate(bidi_edges):
+        plt.text(i, v - 0.5* offset, f'{v:.1f}', ha='center', va='top', rotation=0, fontsize=8)
+    for i, v in enumerate(astar_edges):
+        plt.text(i, v, f'{v:.1f}', ha='center', va='center', rotation=0, fontsize=8)
+    
+    plt.tight_layout()
+    plt.savefig('comparison_edges_trend_with_astar.png')
+    plt.close()
+
+# Unified test function (modified to call edge graph)
+def test_algorithms_with_plot():
+    results = []
+    
+    g_small = Graph(directed=True)
+    g_small.add_edge(1, 2, 4)
+    g_small.add_edge(1, 3, 2)
+    g_small.add_edge(2, 4, 3)
+    g_small.add_edge(3, 2, 1)
+    g_small.add_edge(3, 4, 5)
+    g_small.add_edge(4, 5, 2)
+    g_small.add_edge(2, 5, 10)
+    results.append(run_performance_test(g_small, 1, 5, iterations=100, name="Small Directed"))
+
+    g_medium = generate_random_graph(n=10000, m=50000, directed=True)
+    results.append(run_performance_test(g_medium, 0, 9999, iterations=10, name="Medium Directed"))
+
+    g_large = generate_random_graph(n=50000, m=250000, directed=True)
+    results.append(run_performance_test(g_large, 0, 49999, iterations=10, name="Large Directed"))
+
+    g_very_large = generate_random_graph(n=100000, m=500000, directed=True)
+    results.append(run_performance_test(g_very_large, 0, 99999, iterations=10, name="Very Large Directed"))
+
+    plot_comparison_time_trend(results)
+    plot_comparison_edge_trend(results)
+
 if __name__ == "__main__":
-    test_algorithms()
+    test_algorithms_with_plot()
