@@ -24,3 +24,11 @@ Since _bidirectional search_ shows promising results in huge graphs, it is only 
   - `comparison_edges_trend.png`
   - `comparison_times_trend.png`
   - `performance.txt`
+- `data`
+  - `data_gen.py`
+  - `graph_datasets.zip`
+- `docs`
+  - `BidirectionalDijkstra-cp2-edit.jpg`
+  - `notes.txt`
+- `src`
+  - `main.py`
