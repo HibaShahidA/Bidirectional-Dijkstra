@@ -1,0 +1,11 @@
+# Performance graphs here
+
+The performance graphs show the trend:
+
+Worst performance: standard Dijkstra
+Moderate performance: A*
+Best performance: bidirectional Dijkstra
+
+Shows that it is, in fact, instance optimal.
+
+Larger graphs -> bidirectional Dijkstra treverses lesser nodes/vertices -> shorter execution time.
