@@ -7,4 +7,20 @@ The algorithm runs like the standard Dijkstra, except in the _bidirectional sear
 # Dataset
 Since _bidirectional search_ shows promising results in huge graphs, it is only fair to run the algorithm against the standard Dijkstra on equally large datasets. Therefore, we have decided to use two approaches for the final testing:
 - _synthetic_ datasets of varying sizes to test the optimal time on expected output
-- _real world_ datasets to validate the time complexity on varying/unpredictable data (graph may be disjoint, unidirectional, unweighted, etc.)
+- _code generated_ datasets of varying sizes and types
+
+## Directory Breakdown
+
+- `Checkpoint1/`
+  - `BidirectionalDijkstra.pdf`
+  - `BidirectionalDijkstra.tex`
+- `Checkpoint2/`
+  - `BidirectionalDijkstra-cp2.pdf`
+  - `report.tex`
+- `Checkpoint3/`
+  - `BidirectionalDijkstra-cp3.pdf`
+  - `report(3).tex`
+- `benchmarks/`
+  - `comparison_edges_trend.png`
+  - `comparison_times_trend.png`
+  - `performance.txt`
