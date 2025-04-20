@@ -53,9 +53,14 @@ The results of the performance comparison between the Bidirectional Dijkstra alg
 ```bash
 git clone <repository-url>
 cd Bidirectional-Dijkstra
+```
 
 ### 2. Install Dependencies
+``` bash
 pip install networkx matplotlib numpy
+```
 
 ### 3. Run the Project
+```bash
 python src/main.py
+```
