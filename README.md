@@ -38,6 +38,10 @@ The results of the performance comparison between the Bidirectional Dijkstra alg
   - `comparison_edges_trend.png`
   - `comparison_times_trend.png`
   - `performance.txt`
+- `Checkpoint4/`
+  - `Bidirectional Dijkstra Optimizing Shortest Paths.pdf`
+  - `FinalReport.pdf`
+  - `final_report.tex`
 - `data`
   - `data_gen.py`
   - `graph_datasets.zip`
